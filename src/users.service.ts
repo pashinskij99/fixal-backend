@@ -16,19 +16,23 @@ export class UsersService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
-    const { username, password } = registerDto;
+    const { email, phone, password } = registerDto;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = this.usersRepository.create({ username, password: hashedPassword });
+    const user = this.usersRepository.create({
+      email,
+      phone,
+      password: hashedPassword,
+    });
     return this.usersRepository.save(user);
   }
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
-    const { username, password } = loginDto;
-    const user = await this.usersRepository.findOne({ where: { username } });
+    const { email, password } = loginDto;
+    const user = await this.usersRepository.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { username: user.username, sub: user.id };
+    const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     };
