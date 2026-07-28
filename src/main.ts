@@ -5,6 +5,7 @@ import express from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  console.log('--- ТЕСТ ENV --- Пароль з процесу:', process.env.DB_PASSWORD);
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
