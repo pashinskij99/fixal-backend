@@ -26,15 +26,24 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
+  async login(loginDto: LoginDto): Promise<{
+    access_token: string;
+    user: Omit<User, 'password' | 'businesses'>;
+  }> {
     const { email, password } = loginDto;
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: user.email, sub: user.id };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      id: user.id,
+      phone: user.phone,
+    };
     return {
       access_token: this.jwtService.sign(payload),
+      user: payload,
     };
   }
 
